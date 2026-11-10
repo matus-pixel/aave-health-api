@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"io"
 	"math/big"
 	"net/http"
 	"net/http/httptest"
@@ -80,7 +81,7 @@ func TestValidateWallet(t *testing.T) {
 	}
 }
 
-func TestFreeHealthAndPaidChallenge(t *testing.T) {
+func TestGlobalPaymentChallenge(t *testing.T) {
 	service, err := newAPIService(nil)
 	if err != nil {
 		t.Fatalf("newAPIService returned error: %v", err)
@@ -92,45 +93,58 @@ func TestFreeHealthAndPaidChallenge(t *testing.T) {
 		"0x0000000000000000000000000000000000000001",
 		"http://127.0.0.1:1",
 	)
-	healthRequest := httptest.NewRequest(http.MethodGet, "/health", nil)
-	healthResponse, err := app.Test(healthRequest)
+
+	pingRequest := httptest.NewRequest(http.MethodGet, "/ping", nil)
+	pingResponse, err := app.Test(pingRequest)
 	if err != nil {
-		t.Fatalf("health request failed: %v", err)
+		t.Fatalf("ping request failed: %v", err)
 	}
-	defer healthResponse.Body.Close()
-	if healthResponse.StatusCode != http.StatusOK {
-		t.Fatalf("health status = %d, want 200", healthResponse.StatusCode)
+	pingBody, err := io.ReadAll(pingResponse.Body)
+	pingResponse.Body.Close()
+	if err != nil {
+		t.Fatalf("read ping response: %v", err)
 	}
-	if healthResponse.Header.Get("X-Response-Time-Ms") == "" {
-		t.Fatal("health response is missing X-Response-Time-Ms")
+	if pingResponse.StatusCode != http.StatusOK {
+		t.Fatalf("ping status = %d, want 200", pingResponse.StatusCode)
+	}
+	if string(pingBody) != `{"status":"ok"}` {
+		t.Fatalf("ping body = %q, want %q", pingBody, `{"status":"ok"}`)
+	}
+	if pingResponse.Header.Get("PAYMENT-REQUIRED") != "" {
+		t.Fatal("ping response unexpectedly includes x402 payment requirements")
 	}
 
-	paidRequest := httptest.NewRequest(
-		http.MethodGet,
+	for _, path := range []string{
+		"/",
+		"/health",
+		"/not-found",
 		"/api/v1/aave/health?wallet=0x0000000000000000000000000000000000000001&chain=arbitrum",
-		nil,
-	)
-	paidResponse, err := app.Test(paidRequest)
-	if err != nil {
-		t.Fatalf("unpaid API request failed: %v", err)
-	}
-	defer paidResponse.Body.Close()
-	if paidResponse.StatusCode != http.StatusPaymentRequired {
-		t.Fatalf("unpaid API status = %d, want 402", paidResponse.StatusCode)
-	}
-	if paidResponse.Header.Get("X-Response-Time-Ms") == "" {
-		t.Fatal("402 response is missing X-Response-Time-Ms")
-	}
-	if paidResponse.Header.Get("PAYMENT-REQUIRED") == "" {
-		t.Fatal("402 response is missing x402 payment requirements")
-	}
-	var body map[string]interface{}
-	if err := json.NewDecoder(paidResponse.Body).Decode(&body); err != nil {
-		t.Fatalf("decode 402 body: %v", err)
-	}
-	if body["wallet"] != "0x0000000000000000000000000000000000000001" ||
-		body["price"] != "0.01 USDC" {
-		t.Fatalf("402 body missing configured wallet or price: %+v", body)
+	} {
+		request := httptest.NewRequest(http.MethodGet, path, nil)
+		response, err := app.Test(request)
+		if err != nil {
+			t.Fatalf("request to %s failed: %v", path, err)
+		}
+		if response.StatusCode != http.StatusPaymentRequired {
+			response.Body.Close()
+			t.Errorf("unpaid request to %s returned %d, want 402", path, response.StatusCode)
+			continue
+		}
+		if response.Header.Get("X-Response-Time-Ms") == "" {
+			t.Errorf("402 response for %s is missing X-Response-Time-Ms", path)
+		}
+		if response.Header.Get("PAYMENT-REQUIRED") == "" {
+			t.Errorf("402 response for %s is missing x402 payment requirements", path)
+		}
+		if path == "/" {
+			var body map[string]interface{}
+			if err := json.NewDecoder(response.Body).Decode(&body); err != nil {
+				t.Errorf("decode root payment challenge: %v", err)
+			} else if body["error"] != "Payment Required" {
+				t.Errorf("root request returned handler body instead of payment challenge: %+v", body)
+			}
+		}
+		response.Body.Close()
 	}
 }
 

@@ -585,7 +585,13 @@ func buildPaymentMiddleware(
 		)
 	}
 	middleware := x402nethttp.PaymentMiddlewareFromConfig(routes, options...)
-	return adaptor.HTTPMiddleware(middleware)
+	paymentHandler := adaptor.HTTPMiddleware(middleware)
+	return func(c *fiber.Ctx) error {
+		if c.Path() == "/ping" {
+			return c.Next()
+		}
+		return paymentHandler(c)
+	}
 }
 
 func newFiberApp(service *apiService, wallet, facilitatorURL string) *fiber.App {
@@ -610,6 +616,9 @@ func newFiberApp(service *apiService, wallet, facilitatorURL string) *fiber.App 
 	app.Use(buildPaymentMiddleware(wallet, facilitatorURL))
 
 	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "ok"})
+	})
+	app.Get("/ping", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "ok"})
 	})
 	app.Get("/", func(c *fiber.Ctx) error {
