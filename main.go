@@ -34,13 +34,14 @@ import (
 )
 
 const (
-	rpcTimeout       = 1500 * time.Millisecond
-	cacheTTL         = 2 * time.Second
-	cacheCleanup     = 10 * time.Second
-	healthMethod     = "getUserAccountData"
-	usdBaseDecimals  = 8
-	healthFactorWAD  = 18
-	percentageDigits = 2
+	defaultWalletAddress = "0x20759eE366409B7dFE73a5325bfe0Dd57B6d7850"
+	rpcTimeout           = 1500 * time.Millisecond
+	cacheTTL             = 2 * time.Second
+	cacheCleanup         = 10 * time.Second
+	healthMethod         = "getUserAccountData"
+	usdBaseDecimals      = 8
+	healthFactorWAD      = 18
+	percentageDigits     = 2
 )
 
 const poolABIJSON = `[{
@@ -631,11 +632,19 @@ func newFiberApp(service *apiService, wallet, facilitatorURL string) *fiber.App 
 	return app
 }
 
+func receivingWalletAddress() string {
+	wallet := strings.TrimSpace(os.Getenv("X402_WALLET_ADDRESS"))
+	if wallet == "" {
+		return defaultWalletAddress
+	}
+	return wallet
+}
+
 func main() {
 	if err := godotenv.Load(); err != nil && !errors.Is(err, os.ErrNotExist) {
 		log.Printf("could not load .env: %v", err)
 	}
-	wallet := strings.TrimSpace(os.Getenv("X402_WALLET_ADDRESS"))
+	wallet := receivingWalletAddress()
 	if _, err := validateWallet(wallet); err != nil {
 		log.Fatalf("invalid X402_WALLET_ADDRESS: %v", err)
 	}

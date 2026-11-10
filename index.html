@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A paid, read-only Aave V3 health factor API for liquidation bots and risk tooling on Arbitrum, Base, and Polygon.">
+  <meta name="theme-color" content="#070b14">
+  <title>High-Speed Aave V3 Health Factor API</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background:
+        radial-gradient(ellipse at 15% 0%, rgba(34, 211, 238, .12), transparent 34rem),
+        radial-gradient(ellipse at 100% 20%, rgba(99, 102, 241, .11), transparent 32rem),
+        #070b14;
+    }
+    .glass { background: rgba(15, 23, 42, .72); backdrop-filter: blur(18px); }
+    .grid-glow {
+      background-image: linear-gradient(rgba(148,163,184,.035) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(148,163,184,.035) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(to bottom, black, transparent 85%);
+    }
+    code, pre { tab-size: 2; }
+  </style>
+</head>
+<body class="min-h-screen text-slate-100 antialiased selection:bg-cyan-300/30">
+  <div class="grid-glow pointer-events-none fixed inset-0 -z-10"></div>
+  <header class="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
+    <a href="#" class="flex items-center gap-3 font-semibold tracking-tight">
+      <span class="grid h-10 w-10 place-items-center rounded-xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-200">A</span>
+      <span>Aave Health API</span>
+    </a>
+    <a href="https://aave-health-api.onrender.com/health" class="rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:border-cyan-300/50 hover:text-cyan-200">
+      API status <span class="ml-1 text-emerald-300">●</span>
+    </a>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 pb-24 pt-12 lg:px-10 lg:pt-20">
+    <section class="grid items-center gap-14 lg:grid-cols-[1.05fr_.95fr]">
+      <div>
+        <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1.5 text-xs font-medium uppercase tracking-[.18em] text-cyan-200">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-300"></span>
+          Built for on-chain risk
+        </div>
+        <h1 class="max-w-3xl text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+          High-Speed Aave V3<br><span class="bg-gradient-to-r from-cyan-200 to-indigo-300 bg-clip-text text-transparent">Health Factor API</span>
+        </h1>
+        <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-400">
+          The fastest way for liquidation bots to monitor Aave positions on Arbitrum, Base, and Polygon.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#quickstart" class="rounded-xl bg-cyan-300 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-200">Start integrating <span aria-hidden="true">→</span></a>
+          <a href="https://aave-health-api.onrender.com/health" class="rounded-xl border border-slate-700 px-5 py-3 font-medium text-slate-200 transition hover:border-slate-500">Check API status</a>
+        </div>
+        <p class="mt-5 text-xs leading-5 text-slate-500">Read-only data access. The API does not sign or submit blockchain transactions.</p>
+      </div>
+
+      <div class="glass rounded-3xl border border-slate-700/70 p-6 shadow-2xl shadow-cyan-950/20 sm:p-8">
+        <div class="flex items-center justify-between border-b border-slate-700/70 pb-5">
+          <div>
+            <p class="text-sm text-slate-400">Supported markets</p>
+            <p class="mt-1 text-lg font-semibold">Aave V3 · Account health</p>
+          </div>
+          <span class="rounded-lg border border-emerald-300/20 bg-emerald-300/10 px-2.5 py-1 text-xs font-medium text-emerald-200">LIVE</span>
+        </div>
+        <div class="grid grid-cols-3 gap-3 py-6">
+          <div class="rounded-2xl border border-slate-700/70 bg-slate-950/50 p-4"><span class="text-xs text-slate-500">ARBITRUM</span><p class="mt-2 text-sm font-medium">Chain 42161</p></div>
+          <div class="rounded-2xl border border-slate-700/70 bg-slate-950/50 p-4"><span class="text-xs text-slate-500">BASE</span><p class="mt-2 text-sm font-medium">Chain 8453</p></div>
+          <div class="rounded-2xl border border-slate-700/70 bg-slate-950/50 p-4"><span class="text-xs text-slate-500">POLYGON</span><p class="mt-2 text-sm font-medium">Chain 137</p></div>
+        </div>
+        <div class="rounded-2xl border border-slate-700/70 bg-slate-950/60 p-4">
+          <div class="mb-3 flex items-center justify-between text-xs text-slate-500"><span>PAY-PER-REQUEST</span><span>x402 · USDC</span></div>
+          <div class="flex items-end justify-between"><span class="text-3xl font-semibold tracking-tight">0.01 <span class="text-base text-slate-400">USDC</span></span><span class="text-sm text-emerald-300">per call via x402 protocol</span></div>
+          <p class="mt-4 break-all text-xs text-slate-400">USDC Receiver: <span class="font-mono text-emerald-200">0x20759eE366409B7dFE73a5325bfe0Dd57B6d7850</span></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="quickstart" class="mt-24 grid gap-6 lg:grid-cols-2">
+      <div class="glass rounded-3xl border border-slate-700/70 p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[.18em] text-cyan-200">Quickstart</p>
+        <h2 class="mt-3 text-2xl font-semibold">One endpoint. Fresh account data.</h2>
+        <p class="mt-3 text-sm leading-6 text-slate-400">A request without payment returns the x402 payment challenge. Use an x402-compatible client to pay and retry.</p>
+        <div class="mt-6 overflow-x-auto rounded-2xl border border-slate-700 bg-slate-950 p-4">
+          <pre class="whitespace-pre-wrap break-all text-sm leading-6 text-cyan-100"><code>curl -i "https://aave-health-api.onrender.com/api/v1/aave/health?wallet=0x...&amp;chain=base"</code></pre>
+        </div>
+        <p class="mt-3 text-xs leading-5 text-slate-500">Replace <code class="text-slate-300">0x...</code> with the complete wallet address. Valid chains: <code class="text-slate-300">arbitrum</code>, <code class="text-slate-300">base</code>, <code class="text-slate-300">polygon</code>.</p>
+      </div>
+
+      <div class="glass rounded-3xl border border-slate-700/70 p-6 sm:p-8">
+        <p class="text-xs font-semibold uppercase tracking-[.18em] text-indigo-200">Example response</p>
+        <h2 class="mt-3 text-2xl font-semibold">Decision-ready fields</h2>
+        <p class="mt-3 text-sm leading-6 text-slate-400">Illustrative JSON for a successful request; values vary by wallet and block state.</p>
+        <div class="mt-6 overflow-x-auto rounded-2xl border border-slate-700 bg-slate-950 p-4">
+          <pre class="text-sm leading-6 text-slate-300"><code>{
+  "chain": "base",
+  "chain_id": 8453,
+  "wallet": "0x...",
+  "health_factor": 1.8427,
+  "total_collateral_usd": 12500.00,
+  "total_debt_usd": 6200.00,
+  "available_borrows_usd": 3100.00,
+  "current_liquidation_threshold_pct": 80.00,
+  "ltv_pct": 75.00,
+  "updated_at": "2026-11-10T12:00:00Z",
+  "cached": false
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-6 grid gap-6 md:grid-cols-3">
+      <article class="glass rounded-2xl border border-slate-700/70 p-6">
+        <div class="mb-4 grid h-10 w-10 place-items-center rounded-xl bg-cyan-300/10 text-cyan-200">↗</div>
+        <h3 class="font-semibold">Parallel RPC fallback</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-400">Configured RPC endpoints are queried in parallel, with a successful response used when available.</p>
+      </article>
+      <article class="glass rounded-2xl border border-slate-700/70 p-6">
+        <div class="mb-4 grid h-10 w-10 place-items-center rounded-xl bg-indigo-300/10 text-indigo-200">⏱</div>
+        <h3 class="font-semibold">Observable latency</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-400">Every response includes <code class="text-slate-300">X-Response-Time-Ms</code>. End-to-end latency depends on network and payment settlement.</p>
+      </article>
+      <article class="glass rounded-2xl border border-slate-700/70 p-6">
+        <div class="mb-4 grid h-10 w-10 place-items-center rounded-xl bg-emerald-300/10 text-emerald-200">◇</div>
+        <h3 class="font-semibold">Pay per successful call</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-400">The x402 facilitator verifies and settles a 0.01 USDC payment. No subscription or API key.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-800/80">
+    <div class="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-7 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between lg:px-10">
+      <span>Aave Health API · Read-only Aave V3 account data</span>
+      <span>Arbitrum · Base · Polygon · x402 / USDC</span>
+    </div>
+  </footer>
+</body>
+</html>
