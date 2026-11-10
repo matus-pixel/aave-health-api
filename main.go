@@ -532,7 +532,6 @@ func writeJSON(w http.ResponseWriter, status int, value interface{}) {
 func buildPaymentMiddleware(
 	wallet,
 	facilitatorURL string,
-	next http.Handler,
 ) fiber.Handler {
 	accepted := make(x402http.PaymentOptions, 0, len(supportedChains))
 	chainNames := make([]string, 0, len(supportedChains))
@@ -548,9 +547,9 @@ func buildPaymentMiddleware(
 	}
 
 	routes := x402http.RoutesConfig{
-		"GET /api/v1/aave/health": {
+		"* /*": {
 			Accepts:     accepted,
-			Description: "Aave V3 account health and collateral data",
+			Description: "Aave V3 Health API",
 			MimeType:    "application/json",
 			UnpaidResponseBody: func(
 				_ context.Context,
@@ -586,7 +585,7 @@ func buildPaymentMiddleware(
 		)
 	}
 	middleware := x402nethttp.PaymentMiddlewareFromConfig(routes, options...)
-	return adaptor.HTTPHandler(middleware(next))
+	return adaptor.HTTPMiddleware(middleware)
 }
 
 func newFiberApp(service *apiService, wallet, facilitatorURL string) *fiber.App {
@@ -608,19 +607,18 @@ func newFiberApp(service *apiService, wallet, facilitatorURL string) *fiber.App 
 		return err
 	})
 	app.Use(recover.New())
+	app.Use(buildPaymentMiddleware(wallet, facilitatorURL))
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{"status": "ok"})
 	})
-	protected := buildPaymentMiddleware(
-		wallet,
-		facilitatorURL,
-		http.HandlerFunc(service.healthHandler),
-	)
-	app.Get(
-		"/api/v1/aave/health",
-		protected,
-	)
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"name":    "Aave V3 Health Factor API",
+			"message": "Use /api/v1/aave/health?wallet=0x...&chain=base",
+		})
+	})
+	app.Get("/api/v1/aave/health", adaptor.HTTPHandler(http.HandlerFunc(service.healthHandler)))
 	return app
 }
 
